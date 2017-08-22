@@ -1,0 +1,212 @@
+phases:
+
+- phase: buildAll_windows
+  displayName: Build all tasks (Windows)
+  condition: and(succeeded(), not(variables.task))
+  queue:
+    demands: agent.os -equals Windows_NT
+    parallel: 2
+  steps:
+
+  # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
+  - script: node .\ci\set-task-slice.js
+    displayName: Set task slice
+
+  # npm install
+  - script: npm install
+    displayName: npm install
+
+  # Build
+  - script: node make.js build --task "$(task_pattern)"
+    displayName: Build
+
+  # Stage slice
+  - script: node .\ci\stage-slice.js
+    displayName: Stage slice
+
+  # Publish slice artifact
+  - task: PublishBuildArtifacts@1
+    displayName: Publish slice artifact
+    inputs:
+      pathToPublish: _package/tasks.zip
+      artifactName: slice-$(system.jobPositionInPhase)
+      artifactType: container
+
+  # Prepend node
+  - powershell: .\ci\use-node-5.ps1 # switch to NodeTool task when bug fix is deployed
+    displayName: Use node 5.10.1
+
+  # Test
+  - script: node make.js test
+    displayName: Test
+
+  - script: node make.js testLegacy --task "$(task_pattern)"
+    displayName: Legacy tests
+
+  # Use node 6
+  - task: NodeTool@0
+    displayName: Use node 6.10.3
+    inputs:
+      versionSpec: "6.10.3"
+
+  # Test
+  - script: node make.js test --runner ts
+    displayName: Test
+
+  - script: node make.js testLegacy --runner ts --task "$(task_pattern)"
+    displayName: Legacy tests
+
+- phase: publish_windows
+  displayName: Publish
+  dependsOn:
+  - buildAll_windows
+  # - buildAll_mac
+  # - buildAll_linux
+  queue:
+    demands: agent.os -equals Windows_NT
+  steps:
+
+  # Set variables
+  - powershell: .\ci\set-publish-variables.ps1
+    displayName: Set publish variables
+
+  # Download artifacts
+  - task: DownloadBuildArtifact@0
+    inputs:
+      artifactName: slice-1
+  - task: DownloadBuildArtifact@0
+    inputs:
+      artifactName: slice-2
+  # - task: DownloadBuildArtifact@0
+  #   inputs:
+  #     artifactName: slice-3
+  # - task: DownloadBuildArtifact@0
+  #   inputs:
+  #     artifactName: slice-4
+  # - task: DownloadBuildArtifact@0
+  #   inputs:
+  #     artifactName: slice-5
+
+  # Use NuGet 4
+  - task: NuGetToolInstaller@0
+    displayName: Use NuGet 4
+    condition: and(succeeded(), or(variables.publish_milestone, variables.publish_aggregate))
+    inputs:
+      versionSpec: 4.0.0
+
+  # Stage milestone
+  - script: node .\ci\stage-milestone.js
+    displayName: Stage milestone
+
+  # Pack milestone
+  - script: nuget pack vsts-tasks-milestone.nuspec -BasePath milestone-pack-source -NoDefaultExcludes
+    displayName: Pack milestone
+    condition: and(succeeded(), variables.publish_milestone)
+    workingDirectory: _package
+
+  # Publish milestone package
+  - task: NuGetCommand@2
+    displayName: Publish milestone package
+    condition: and(succeeded(), variables.publish_milestone)
+    inputs:
+      command: push
+      searchPatternPush: _package\vsts-tasks-milestone.$(milestone_version).nupkg
+      nuGetFeedType: internal
+      feedPublish: $(task_milestone_feed_name)
+
+  # Create packages.config for restoring previous milestones
+  - script: node .\ci\create-restore-config.js
+    displayName: Create packages.config for restoring previous milestones
+
+  # Restore previous milestones
+  - task: NuGetCommand@2
+    displayName: Restore previous milestones
+    inputs:
+      command: restore
+      solution: _package\packages.config
+      selectOrConfig: select
+      feedRestore: $(task_milestone_feed_name)
+      includeNuGetOrg: false
+      packagesDirectory: $(system.defaultWorkingDirectory)\_package\restore
+
+  # Stage aggregate
+  - script: node .\ci\stage-aggregate.js
+    displayName: Stage aggregate
+
+  # Pack aggregate
+  - script: nuget pack Mseng.MS.TF.Build.Tasks.nuspec -BasePath aggregate-pack-source -NoDefaultExcludes
+    displayName: Pack aggregate
+    condition: and(succeeded(), variables.publish_aggregate)
+    workingDirectory: _package
+
+  # Publish aggregate package
+  - task: NuGetCommand@2
+    displayName: Publish aggregate package
+    condition: and(succeeded(), variables.publish_aggregate)
+    inputs:
+      command: push
+      searchPatternPush: _package\Mseng.MS.TF.Build.Tasks.$(aggregate_version).nupkg
+      nuGetFeedType: internal
+      feedPublish: $(aggregate_tasks_feed_name)
+
+  # Publish aggregate artifact
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: _package/aggregate-pack-source/contents
+      artifactName: TaskPackage
+      artifactType: container
+
+  # Update build number
+  - script: "echo ##vso[build.updatebuildnumber]$(aggregate_version)"
+    displayName: Update build number
+
+- phase: buildSingle_windows
+  displayName: Build single task (Windows)
+  condition: and(succeeded(), variables.task)
+  queue:
+    demands: agent.os -equals Windows_NT
+  steps:
+
+  # npm install
+  - script: npm install
+    displayName: npm install
+
+  # Build
+  - script: node make.js build --task "$(task)"
+    displayName: Build
+
+  # Stage hotfix
+  - script: node .\ci\stage-hotfix.js
+    displayName: Stage hotfix
+
+  # Publish hotfix artifact
+  - task: PublishBuildArtifacts@1
+    displayName: Publish hotfix artifact
+    inputs:
+      pathToPublish: _package/hotfix.zip
+      artifactName: hotfix
+      artifactType: container
+
+  # Prepend node
+  - powershell: .\ci\use-node-5.ps1 # switch to NodeTool task when bug fix is deployed
+    displayName: Use node 5.10.1
+
+  # Test
+  - script: node make.js test
+    displayName: Test
+
+  - script: node make.js testLegacy --task "$(task)"
+    displayName: Legacy tests
+
+  # Use node 6
+  - task: NodeTool@0
+    displayName: Use node 6.10.3
+    inputs:
+      versionSpec: "6.10.3"
+
+  # Test
+  - script: node make.js test --runner ts
+    displayName: Test
+
+  - script: node make.js testLegacy --runner ts --task "$(task)"
+    displayName: Legacy tests
