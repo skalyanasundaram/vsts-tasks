@@ -228,7 +228,7 @@ phases:
   steps:
 
   # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
-  - script: node .\ci\set-task-slice.js
+  - script: node ./ci/set-task-slice.js
     displayName: Set task slice
 
   # npm install
