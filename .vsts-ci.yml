@@ -221,7 +221,7 @@ phases:
 - phase: buildAll_linux
 ################################################################################
   displayName: Build all tasks (Linux)
-  condition: and(succeeded(), not(variables.task), eq(variables.os, 'Linux'))
+  #condition: and(succeeded(), not(variables.task), eq(variables.os, 'Linux'))
   queue:
     demands: agent.os -equals Linux
     parallel: 5
