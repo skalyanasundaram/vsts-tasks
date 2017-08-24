@@ -1,9 +1,5 @@
 {
     "tasks": [
-        "ManualIntervention",
-        "Chef"
-    ],
-    "_tasks": [
         "AndroidSigning",
         "ANT",
         "ArchiveFiles",
