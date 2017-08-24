@@ -229,7 +229,7 @@ phases:
   - script: |
       echo npm --version
       npm --version
-  - script:
+  - script: |
       echo node --version
       node --version
   - task: NodeTool@0
@@ -239,7 +239,7 @@ phases:
   - script: |
       echo npm --version
       npm --version
-  - script:
+  - script: |
       echo node --version
       node --version
 
