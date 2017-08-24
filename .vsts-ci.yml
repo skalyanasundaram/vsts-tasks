@@ -254,7 +254,6 @@ phases:
   # Test
   - script: node make.js test --runner ts
     displayName: Test
-
   - script: node make.js testLegacy --runner ts --task "$(task_pattern)"
     displayName: Legacy tests
 
@@ -267,6 +266,5 @@ phases:
   # Test
   - script: node make.js test
     displayName: Test
-
   - script: node make.js testLegacy --task "$(task_pattern)"
     displayName: Legacy tests
