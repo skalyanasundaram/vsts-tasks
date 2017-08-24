@@ -1,8 +1,10 @@
 phases:
 
+################################################################################
 - phase: buildAll_windows
+################################################################################
   displayName: Build all tasks (Windows)
-  condition: and(succeeded(), not(variables.task), eq(os, 'Windows_NT'))
+  condition: and(succeeded(), not(variables.task), eq(variables.os, 'Windows_NT'))
   queue:
     demands: agent.os -equals Windows_NT
     parallel: 2
@@ -56,7 +58,9 @@ phases:
   - script: node make.js testLegacy --runner ts --task "$(task_pattern)"
     displayName: Legacy tests
 
+################################################################################
 - phase: publish_windows
+################################################################################
   displayName: Publish
   dependsOn:
   - buildAll_windows
@@ -160,9 +164,11 @@ phases:
   - script: "echo ##vso[build.updatebuildnumber]$(aggregate_version)"
     displayName: Update build number
 
+################################################################################
 - phase: buildSingle_windows
+################################################################################
   displayName: Build single task (Windows)
-  condition: and(succeeded(), variables.task, eq(os, 'Windows_NT'))
+  condition: and(succeeded(), variables.task, eq(variables.os, 'Windows_NT'))
   queue:
     demands: agent.os -equals Windows_NT
   steps:
@@ -211,9 +217,11 @@ phases:
   - script: node make.js testLegacy --runner ts --task "$(task)"
     displayName: Legacy tests
 
+################################################################################
 - phase: buildAll_linux
+################################################################################
   displayName: Build all tasks (Linux)
-  condition: and(succeeded(), not(variables.task), eq(os, 'Linux'))
+  condition: and(succeeded(), not(variables.task), eq(variables.os, 'Linux'))
   queue:
     demands: agent.os -equals Linux
     parallel: 5
