@@ -226,8 +226,22 @@ phases:
     demands: agent.os -equals Linux
     # parallel: 5
   steps:
-  - script: npm --version
-  - script: node --version
+  - script: |
+      echo npm --version
+      npm --version
+  - script:
+      echo node --version
+      node --version
+  - task: NodeTool@0
+    displayName: Use node 6.10.3
+    inputs:
+      versionSpec: "6.10.3"
+  - script: |
+      echo npm --version
+      npm --version
+  - script:
+      echo node --version
+      node --version
 
   # # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
   # - script: node ./ci/set-task-slice.js
