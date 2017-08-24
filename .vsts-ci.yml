@@ -224,43 +224,45 @@ phases:
   #condition: and(succeeded(), not(variables.task), eq(variables.os, 'Linux'))
   queue:
     demands: agent.os -equals Linux
-    parallel: 5
+    # parallel: 5
   steps:
+  - script: npm --version
+  - script: node --version
 
-  # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
-  - script: node ./ci/set-task-slice.js
-    displayName: Set task slice
+  # # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
+  # - script: node ./ci/set-task-slice.js
+  #   displayName: Set task slice
 
-  # npm install
-  - script: npm install
-    displayName: npm install
+  # # npm install
+  # - script: npm install
+  #   displayName: npm install
 
-  # Build
-  - script: node make.js build --task "$(task_pattern)"
-    displayName: Build
+  # # Build
+  # - script: node make.js build --task "$(task_pattern)"
+  #   displayName: Build
 
-  # Prepend node
-  - task: NodeTool@0
-    displayName: Use node 5.10.1
-    inputs:
-      versionSpec: "5.10.1"
+  # # Prepend node
+  # - task: NodeTool@0
+  #   displayName: Use node 5.10.1
+  #   inputs:
+  #     versionSpec: "5.10.1"
 
-  # Test
-  - script: node make.js test
-    displayName: Test
+  # # Test
+  # - script: node make.js test
+  #   displayName: Test
 
-  - script: node make.js testLegacy --task "$(task_pattern)"
-    displayName: Legacy tests
+  # - script: node make.js testLegacy --task "$(task_pattern)"
+  #   displayName: Legacy tests
 
-  # Use node 6
-  - task: NodeTool@0
-    displayName: Use node 6.10.3
-    inputs:
-      versionSpec: "6.10.3"
+  # # Use node 6
+  # - task: NodeTool@0
+  #   displayName: Use node 6.10.3
+  #   inputs:
+  #     versionSpec: "6.10.3"
 
-  # Test
-  - script: node make.js test --runner ts
-    displayName: Test
+  # # Test
+  # - script: node make.js test --runner ts
+  #   displayName: Test
 
-  - script: node make.js testLegacy --runner ts --task "$(task_pattern)"
-    displayName: Legacy tests
+  # - script: node make.js testLegacy --runner ts --task "$(task_pattern)"
+  #   displayName: Legacy tests
