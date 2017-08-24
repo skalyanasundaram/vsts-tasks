@@ -229,6 +229,10 @@ phases:
     parallel: 5
   steps:
 
+  # Clean
+  - checkout: self
+    clean: true
+
   # Use node 6 and npm 3
   - task: NodeTool@0
     displayName: Use node 6.10.3
