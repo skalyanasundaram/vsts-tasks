@@ -286,7 +286,7 @@ var getRefs = function () {
             var release = parseInt(branch.split('/').pop().substr(1));
 
             // filter out releases less than 108 and greater than HEAD
-            if (release < 123 ||
+            if (release < 108 ||
                 release > (info.head.release || 999)) {
 
                 return;
