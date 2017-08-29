@@ -1,9 +1,9 @@
 {
-    "tasks": [
+    "_tasks": [
         "CmdLine",
         "Bash"
     ],
-    "_tasks": [
+    "tasks": [
         "AndroidSigning",
         "ANT",
         "ArchiveFiles",

@@ -7,7 +7,7 @@ phases:
   condition: and(succeeded(), not(variables.task), eq(variables.os, 'Windows_NT'))
   queue:
     demands: agent.os -equals Windows_NT
-    parallel: 2
+    parallel: 5
   steps:
 
   # Slice the tasks (sets TASK_ARRAY and TASK_PATTERN)
@@ -81,15 +81,15 @@ phases:
   - task: DownloadBuildArtifact@0
     inputs:
       artifactName: slice-2
-  # - task: DownloadBuildArtifact@0
-  #   inputs:
-  #     artifactName: slice-3
-  # - task: DownloadBuildArtifact@0
-  #   inputs:
-  #     artifactName: slice-4
-  # - task: DownloadBuildArtifact@0
-  #   inputs:
-  #     artifactName: slice-5
+  - task: DownloadBuildArtifact@0
+    inputs:
+      artifactName: slice-3
+  - task: DownloadBuildArtifact@0
+    inputs:
+      artifactName: slice-4
+  - task: DownloadBuildArtifact@0
+    inputs:
+      artifactName: slice-5
 
   # Use NuGet 4
   - task: NuGetToolInstaller@0
