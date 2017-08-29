@@ -28,8 +28,8 @@ describe('Deploy Test Agent Suite', function () {
     });
 
     if (psm.testSupported()) {
-        it('(VerifyTestExecutionEnginePackage) verifies if make.json testexecution engine version', (done) => {
-            psr.run(path.join(__dirname, 'VerifyTestExecutionEnginePackage.ps1'), done);
-        });
+        // it('(VerifyTestExecutionEnginePackage) verifies if make.json testexecution engine version', (done) => {
+        //     psr.run(path.join(__dirname, 'VerifyTestExecutionEnginePackage.ps1'), done);
+        // });
     }
 });
