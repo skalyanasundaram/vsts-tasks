@@ -91,16 +91,16 @@ phases:
     inputs:
       artifactName: slice-5
 
+  # Stage milestone
+  - script: node .\ci\stage-milestone.js
+    displayName: Stage milestone
+
   # Use NuGet 4
   - task: NuGetToolInstaller@0
     displayName: Use NuGet 4
     condition: and(succeeded(), or(variables.publish_milestone, variables.publish_aggregate))
     inputs:
       versionSpec: 4.0.0
-
-  # Stage milestone
-  - script: node .\ci\stage-milestone.js
-    displayName: Stage milestone
 
   # Pack milestone
   - script: nuget pack vsts-tasks-milestone.nuspec -BasePath milestone-pack-source -NoDefaultExcludes
