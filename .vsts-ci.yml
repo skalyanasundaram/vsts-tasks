@@ -6,7 +6,7 @@ phases:
   displayName: Build all tasks (Windows)
   condition: and(succeeded(), not(variables.task) ) #, eq(variables.os, 'Windows_NT'))
   queue:
-    demands: agent.os -equals Windows_NT
+#    demands: agent.os -equals Windows_NT
     parallel: 5
   steps:
 
@@ -66,8 +66,8 @@ phases:
   - buildAll_windows
   # - buildAll_mac
   # - buildAll_linux
-  queue:
-    demands: agent.os -equals Windows_NT
+  # queue:
+  #   demands: agent.os -equals Windows_NT
   steps:
 
   # Set variables
